@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>हमारे गाँव की दुर्गा पूजा - लाइव दर्शन</title>
+    <title>हमारे गाँव की दुर्गा पूजा</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,42 +14,98 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
+        :root {
+            --saffron: #FF9933;
+            --white: #FFFFFF;
+            --green: #138808;
+            --red: #8e0000;
+            --light-bg: #fff9f0;
+        }
+        
         body {
-            background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%);
+            background-color: var(--light-bg);
             color: #333;
             line-height: 1.6;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
+        /* Header Styles */
         header {
-            text-align: center;
-            padding: 20px 0;
-            background-color: #8e0000;
-            color: white;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--saffron) 0%, var(--white) 50%, var(--green) 100%);
+            padding: 15px 0;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--red);
+        }
+        
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            background-color: var(--red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .nav-link {
+            color: #333 !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--red) !important;
+            transform: translateY(-2px);
+        }
+        
+        /* Main Content Styles */
+        .hero-section {
+            background: url('https://images.unsplash.com/photo-1532634922-8fe0b757fb13?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') no-repeat center center;
+            background-size: cover;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
         }
         
         .live-badge {
-            display: inline-block;
             background: #e60000;
             color: white;
-            padding: 5px 15px;
+            padding: 8px 20px;
             border-radius: 30px;
             font-weight: bold;
-            margin: 10px 0;
+            margin: 15px 0;
             animation: blink 1s infinite;
+            display: inline-block;
         }
         
         @keyframes blink {
@@ -56,160 +114,407 @@
             100% { opacity: 1; }
         }
         
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-            margin-bottom: 20px;
-            background: #000;
-        }
-        
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        .offline-message {
+        .section-title {
             text-align: center;
+            margin: 40px 0;
+            color: var(--red);
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--saffron), var(--green));
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+        
+        /* Committee Section Styles */
+        .committee-section {
+            background-color: white;
             padding: 40px;
-            background: #f5f5f5;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin: 30px 0;
+        }
+        
+        .finance-summary {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .finance-card {
+            background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%);
+            padding: 20px;
             border-radius: 10px;
-            margin: 20px 0;
+            text-align: center;
+            width: 250px;
+            margin: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .instructions {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 20px 0;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        }
-        
-        .instructions h3 {
-            color: #8e0000;
-            margin-bottom: 15px;
-        }
-        
-        .instructions ol {
-            margin-left: 20px;
-        }
-        
-        .instructions li {
+        .finance-card h3 {
+            color: var(--red);
             margin-bottom: 10px;
         }
         
-        .button {
-            display: inline-block;
-            background: #8e0000;
-            color: white;
-            padding: 12px 25px;
-            text-decoration: none;
-            border-radius: 5px;
+        .finance-card .amount {
+            font-size: 1.8rem;
             font-weight: bold;
-            margin: 10px 5px;
-            transition: background 0.3s;
+            color: var(--red);
         }
         
-        .button:hover {
-            background: #6a0000;
+        .donation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
         }
         
+        .donation-table th, .donation-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .donation-table th {
+            background-color: var(--red);
+            color: white;
+        }
+        
+        .donation-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Footer Styles */
         footer {
+            background: linear-gradient(135deg, var(--saffron) 0%, var(--white) 50%, var(--green) 100%);
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+        
+        .footer-links h5 {
+            color: var(--red);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--red);
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: var(--red);
+            color: white;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .social-icons a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .copyright {
             text-align: center;
             margin-top: 30px;
-            padding: 20px;
-            background: #8e0000;
-            color: white;
-            border-radius: 10px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
         
+        /* Responsive Styles */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
+            .hero-section {
+                padding: 60px 0;
             }
             
-            .container {
-                padding: 10px;
+            .finance-card {
+                width: 100%;
+            }
+            
+            .committee-section {
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <a class="navbar-brand logo" href="#">
+                        <div class="logo-img">
+                            <i class="fas fa-om"></i>
+                        </div>
+                        गाँव दुर्गा पूजा
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#"><i class="fas fa-home"></i> होम</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="fas fa-video"></i> लाइव</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="fas fa-calendar-alt"></i> कार्यक्रम</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#committee"><i class="fas fa-users"></i> समिति</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="fas fa-phone"></i> संपर्क</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
             <h1>हमारे गाँव की दुर्गा पूजा</h1>
-            <div class="live-badge">LIVE</div>
-            <p>सभी का स्वागत है! जय माँ दुर्गा</p>
-        </header>
-        
-        <div class="video-container">
-            <!-- Replace with your YouTube Live Embed URL -->
-            <iframe src="https://www.youtube.com/embed/live_stream?channel=UC_x5XG1OV2P6uZZ5FSM9Ttw" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-            </iframe>
+            <div class="live-badge"><i class="fas fa-circle"></i> LIVE</div>
+            <p class="lead">जय माँ दुर्गा | सभी भक्तों का स्वागत है</p>
+            <a href="#" class="btn btn-light btn-lg mt-3">लाइव दर्शन करें</a>
         </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <h2 class="section-title">दुर्गा पूजा कार्यक्रम</h2>
         
-        <div class="instructions">
-            <h3>कैसे देखें लाइव?</h3>
-            <ol>
-                <li>ऊपर दिए गए वीडियो प्लेयर में लाइव स्ट्रीम देखें</li>
-                <li>अगर लाइव नहीं चल रहा है, तो नीचे दिए गए YouTube लिंक पर क्लिक करें</li>
-                <li>अपने डिवाइस पर रिकॉर्डिंग करने के लिए स्क्रीन रिकॉर्डिंग ऐप का use करें</li>
-                <li>लाइव आने तक प्रतीक्षा करें - पूजा के समय ही लाइव स्ट्रीम आएगी</li>
-            </ol>
-            
-            <center>
-                <a href="https://www.youtube.com/" class="button">YouTube पर देखें</a>
-                <a href="https://www.facebook.com/" class="button">Facebook पर देखें</a>
-            </center>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-day"></i> षष्ठी - 20 अक्टूबर</h5>
+                        <p class="card-text">बिल्व निमंत्रण, कलश स्थापना, अमंत्रण</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-day"></i> सप्तमी - 21 अक्टूबर</h5>
+                        <p class="card-text">नवपत्रिका स्नान, प्राण प्रतिष्ठा</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-day"></i> अष्टमी - 22 अक्टूबर</h5>
+                        <p class="card-text">संधि पूजा, कुमारी पूजा</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-calendar-day"></i> नवमी - 23 अक्टूबर</h5>
+                        <p class="card-text">हवन, सिंदूर खेला</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div class="instructions">
-            <h3>लाइव स्ट्रीम कैसे शुरू करें?</h3>
-            <ol>
-                <li>YouTube App खोलें</li>
-                <li>ऊपर कैमरा आइकन पर क्लिक करें</li>
-                <li>"Live Stream" चुनें</li>
-                <li>Title में "हमारे गाँव की दुर्गा पूजा" लिखें</li>
-                <li>Go Live बटन दबाएं</li>
-                <li>Live link को किसी admin को भेजें</li>
-            </ol>
-        </div>
-        
-        <footer>
-            <p>जय माँ दुर्गा | सभी भक्तों को हार्दिक शुभकामनाएं</p>
-            <p>© 2023 हमारे गाँव की दुर्गा पूजा</p>
-        </footer>
     </div>
 
-    <script>
-        // Simple script to check if live stream is available
-        document.addEventListener('DOMContentLoaded', function() {
-            const iframe = document.querySelector('iframe');
-            const offlineMessage = document.createElement('div');
-            offlineMessage.className = 'offline-message';
-            offlineMessage.innerHTML = '<h3>अभी लाइव स्ट्रीम नहीं चल रही है</h3><p>कृपया पूजा के समय वापस आएं</p>';
+    <!-- Committee Section -->
+    <div class="container my-5" id="committee">
+        <h2 class="section-title">पूजा समिति</h2>
+        
+        <div class="committee-section">
+            <h3 class="text-center mb-4">वित्त प्रबंधन</h3>
             
-            iframe.onload = function() {
-                // This is a simple check - for more accurate detection,
-                // you would need YouTube API integration
-                setTimeout(function() {
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (iframeDoc.body.innerHTML.includes('offline')) {
-                        document.querySelector('.video-container').appendChild(offlineMessage);
-                    }
-                }, 3000);
-            };
-        });
-    </script>
+            <div class="finance-summary">
+                <div class="finance-card">
+                    <h3>कुल चंदा</h3>
+                    <div class="amount">₹ 1,25,000</div>
+                    <p>45 लोगों द्वारा</p>
+                </div>
+                
+                <div class="finance-card">
+                    <h3>कुल खर्च</h3>
+                    <div class="amount">₹ 98,500</div>
+                    <p>अब तक</p>
+                </div>
+                
+                <div class="finance-card">
+                    <h3>शेष राशि</h3>
+                    <div class="amount">₹ 26,500</div>
+                    <p>बची हुई</p>
+                </div>
+            </div>
+            
+            <h4 class="mt-5 mb-3">चंदा विवरण</h4>
+            <div class="table-responsive">
+                <table class="donation-table">
+                    <thead>
+                        <tr>
+                            <th>क्रमांक</th>
+                            <th>नाम</th>
+                            <th>राशि (₹)</th>
+                            <th>तारीख</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>राम सिंह</td>
+                            <td>5,000</td>
+                            <td>10/10/2023</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>सीता देवी</td>
+                            <td>3,000</td>
+                            <td>11/10/2023</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>मोहन लाल</td>
+                            <td>10,000</td>
+                            <td>12/10/2023</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>गीता कुमारी</td>
+                            <td>2,500</td>
+                            <td>12/10/2023</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>अनिल कुमार</td>
+                            <td>7,000</td>
+                            <td>13/10/2023</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h4 class="mt-5 mb-3">खर्च का विवरण</h4>
+            <div class="table-responsive">
+                <table class="donation-table">
+                    <thead>
+                        <tr>
+                            <th>क्रमांक</th>
+                            <th>विवरण</th>
+                            <th>राशि (₹)</th>
+                            <th>तारीख</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>पंडित जी का फीस</td>
+                            <td>15,000</td>
+                            <td>15/10/2023</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>मंडप सजावट</td>
+                            <td>25,000</td>
+                            <td>16/10/2023</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>प्रसाद सामग्री</td>
+                            <td>20,000</td>
+                            <td>17/10/2023</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>बिजली व्यवस्था</td>
+                            <td>12,500</td>
+                            <td>18/10/2023</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>अन्य खर्च</td>
+                            <td>26,000</td>
+                            <td>19/10/2023</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-links">
+                    <h5>जल्दी लिंक</h5>
+                    <ul>
+                        <li><a href="#">होम पेज</a></li>
+                        <li><a href="#">लाइव दर्शन</a></li>
+                        <li><a href="#">पूजा कार्यक्रम</a></li>
+                        <li><a href="#">पूजा समिति</a></li>
+                        <li><a href="#">संपर्क करें</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 footer-links">
+                    <h5>हमें फॉलो करें</h5>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 footer-links">
+                    <h5>संपर्क करें</h5>
+                    <p><i class="fas fa-map-marker-alt"></i> हमारा गाँव, जिला - अमेठी, उत्तर प्रदेश</p>
+                    <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                    <p><i class="fas fa-envelope"></i> info@ourgaonpuja.com</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2023 हमारे गाँव की दुर्गा पूजा | सभी अधिकार सुरक्षित</p>
+                <p>जय माँ दुर्गा</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
