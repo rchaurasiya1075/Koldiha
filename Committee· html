@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>समिति खर्च विवरण – Committee</title>
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+  <!-- Chart.js for category-wise visuals -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --saffron: #ff9933;
+      --white: #ffffff;
+      --green: #138808;
+      --red: #8e0000;
+      --light-bg: #fff9f0;
+    }
+    body { background: var(--light-bg); }
+    .navbar {
+      background: linear-gradient(135deg, var(--saffron) 0%, var(--white) 50%, var(--green) 100%);
+    }
+    .brand { color: var(--red); font-weight: 700; }
+    .stat-card {
+      background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%);
+      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+      border: none;
+    }
+    .stat-card .amount { font-size: 1.6rem; font-weight: 800; color: var(--red); }
+    .section-title { color: var(--red); font-weight: 700; }
+    .admin-only { display: none; }
+    .table thead th { background: var(--red); color: #fff; position: sticky; top: 0; z-index: 1; }
+    .table-striped tbody tr:nth-of-type(odd) { background-color: rgba(0,0,0,.03); }
+    .badge-cat { background: var(--red); }
+    .form-control:focus, .form-select:focus { box-shadow: 0 0 0 .2rem rgba(142,0,0,.15); border-color: var(--red); }
+    .footer { border-top: 1px dashed rgba(0,0,0,.15); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg sticky-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand brand" href="#"><i class="fa-solid fa-users"></i> पूजा समिति</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+          <li class="nav-item"><a href="#summary" class="nav-link"><i class="fa-solid fa-chart-pie"></i> सार</a></li>
+          <li class="nav-item"><a href="#table" class="nav-link"><i class="fa-solid fa-table"></i> खर्च तालिका</a></li>
+          <li class="nav-item"><a href="#category" class="nav-link"><i class="fa-solid fa-diagram-project"></i> श्रेणीवार</a></li>
+          <li class="nav-item"><button id="btnLogin" class="btn btn-sm btn-danger"><i class="fa-solid fa-lock"></i> Admin Login</button></li>
+          <li class="nav-item admin-only"><button id="btnLogout" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-right-from-bracket"></i> Logout</button></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+    <!-- SUMMARY CARDS -->
+    <section id="summary" class="mb-4">
+      <h2 class="section-title h4 mb-3">वित्तीय सारांश</h2>
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <div class="card stat-card p-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">कुल चंदा/आय</h6>
+                <div class="amount" id="totalIncome">₹ 0</div>
+              </div>
+              <i class="fa-solid fa-sack-dollar fa-2x text-danger"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card stat-card p-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">कुल खर्च</h6>
+                <div class="amount" id="totalExpense">₹ 0</div>
+              </div>
+              <i class="fa-solid fa-file-invoice-dollar fa-2x text-danger"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card stat-card p-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">शेष राशि</h6>
+                <div class="amount" id="balance">₹ 0</div>
+              </div>
+              <i class="fa-solid fa-scale-balanced fa-2x text-danger"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS -->
+    <section class="mb-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-3">
+          <label class="form-label">खोजें</label>
+          <input id="search" type="text" class="form-control" placeholder="विवरण/नोट/श्रेणी..." />
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label">श्रेणी</label>
+          <select id="filterCategory" class="form-select">
+            <option value="">सभी</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label">से (From)</label>
+          <input id="dateFrom" type="date" class="form-control" />
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label">तक (To)</label>
+          <input id="dateTo" type="date" class="form-control" />
+        </div>
+        <div class="col-6 col-md-3 text-end">
+          <button id="btnReset" class="btn btn-outline-secondary"><i class="fa-solid fa-rotate"></i> Reset</button>
+          <button id="btnExport" class="btn btn-outline-dark"><i class="fa-solid fa-file-arrow-down"></i> Export JSON</button>
+          <label class="btn btn-outline-dark admin-only mb-0">
+            <i class="fa-solid fa-file-arrow-up"></i> Import JSON
+            <input id="inputImport" type="file" accept="application/json" hidden />
+          </label>
+          <button class="btn btn-danger admin-only" data-bs-toggle="modal" data-bs-target="#modalExpense"><i class="fa-solid fa-plus"></i> नया खर्च</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABLE -->
+    <section id="table" class="mb-4">
+      <div class="table-responsive shadow-sm">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th style="width:70px">क्रमांक</th>
+              <th>विवरण</th>
+              <th style="width:140px">श्रेणी</th>
+              <th style="width:140px">राशि (₹)</th>
+              <th style="width:140px">तारीख</th>
+              <th>नोट्स</th>
+              <th class="admin-only" style="width:120px">एक्शन</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="d-flex justify-content-between mt-2 small text-muted">
+        <div id="rowCount">0 रिकॉर्ड</div>
+        <div id="pageHelp">टिप: Admin Login करने पर add/edit/delete सम्भव होगा</div>
+      </div>
+    </section>
+
+    <!-- CATEGORY CHART -->
+    <section id="category" class="mb-5">
+      <h2 class="section-title h5 mb-3">श्रेणीवार खर्च</h2>
+      <canvas id="catChart" height="120"></canvas>
+    </section>
+
+    <section class="footer py-3 text-center text-muted">
+      <div>© 2025 गाँव दुर्गा पूजा समिति | इस पेज पर संपादन केवल Admin द्वारा सम्भव है</div>
+    </section>
+  </main>
+
+  <!-- EXPENSE MODAL (Add/Edit) -->
+  <div class="modal fade" id="modalExpense" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form id="formExpense" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa-solid fa-file-pen"></i> खर्च विवरण</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="expId" />
+          <div class="mb-3">
+            <label class="form-label">विवरण</label>
+            <input id="expDesc" class="form-control" required />
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label">श्रेणी</label>
+              <select id="expCat" class="form-select" required></select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">राशि (₹)</label>
+              <input id="expAmt" type="number" min="0" step="1" class="form-control" required />
+            </div>
+          </div>
+          <div class="row g-2 mt-2">
+            <div class="col-6">
+              <label class="form-label">तारीख</label>
+              <input id="expDate" type="date" class="form-control" required />
+            </div>
+            <div class="col-6">
+              <label class="form-label">नोट्स</label>
+              <input id="expNotes" class="form-control" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">रद्द करें</button>
+          <button type="submit" class="btn btn-danger">सेव करें</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN MODAL -->
+  <div class="modal fade" id="modalLogin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form id="formLogin" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa-solid fa-lock"></i> Admin Login</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2 small text-muted">कृपया admin पासवर्ड दर्ज करें। (Default: <code>Durga@2025</code> – बदलें)</div>
+          <input id="adminPass" type="password" class="form-control" placeholder="Password" required />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">रद्द</button>
+          <button type="submit" class="btn btn-danger">Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ===== CONFIG =====
+    const STORAGE_KEY = 'pujaExpenses';
+    const ADMIN_PASS_KEY = 'pujaAdminPass'; // to allow changing default later if needed
+    const DEFAULT_ADMIN_PASS = 'Durga@2025';
+
+    // Define categories
+    const CATEGORIES = [
+      'पंडित', 'मंडप', 'प्रसाद', 'बिजली', 'सुरक्षा', 'सफाई', 'सांस्कृतिक कार्यक्रम', 'प्रचार-प्रसार', 'अन्य'
+    ];
+
+    // Sample seed data (edit as needed)
+    const SEED = {
+      income: 125000,
+      expenses: [
+        { id: cryptoRandomId(), desc: 'पंडित जी की फीस', cat: 'पंडित', amt: 15000, date: '2023-10-15', notes: '' },
+        { id: cryptoRandomId(), desc: 'मंडप सजावट', cat: 'मंडप', amt: 25000, date: '2023-10-16', notes: '' },
+        { id: cryptoRandomId(), desc: 'प्रसाद सामग्री', cat: 'प्रसाद', amt: 20000, date: '2023-10-17', notes: '' },
+        { id: cryptoRandomId(), desc: 'बिजली व्यवस्था', cat: 'बिजली', amt: 12500, date: '2023-10-18', notes: '' },
+        { id: cryptoRandomId(), desc: 'अन्य खर्च', cat: 'अन्य', amt: 26000, date: '2023-10-19', notes: '' }
+      ]
+    };
+
+    // ===== STATE =====
+    let state = loadState();
+    let adminMode = sessionStorage.getItem('isAdmin') === 'true';
+    let editId = null;
+    let catChart = null;
+
+    // ===== ELEMENTS =====
+    const tbody = document.getElementById('tbody');
+    const totalIncome = document.getElementById('totalIncome');
+    const totalExpense = document.getElementById('totalExpense');
+    const balance = document.getElementById('balance');
+    const rowCount = document.getElementById('rowCount');
+    const search = document.getElementById('search');
+    const filterCategory = document.getElementById('filterCategory');
+    const dateFrom = document.getElementById('dateFrom');
+    const dateTo = document.getElementById('dateTo');
+    const btnReset = document.getElementById('btnReset');
+    const btnExport = document.getElementById('btnExport');
+    const inputImport = document.getElementById('inputImport');
+    const btnLogin = document.getElementById('btnLogin');
+    const btnLogout = document.getElementById('btnLogout');
+
+    // Modal elements
+    const formExpense = document.getElementById('formExpense');
+    const expId = document.getElementById('expId');
+    const expDesc = document.getElementById('expDesc');
+    const expCat = document.getElementById('expCat');
+    const expAmt = document.getElementById('expAmt');
+    const expDate = document.getElementById('expDate');
+    const expNotes = document.getElementById('expNotes');
+
+    // Login modal
+    const formLogin = document.getElementById('formLogin');
+
+    // ===== INIT =====
+    init();
+
+    function init() {
+      // populate category filters
+      CATEGORIES.forEach(c => {
+        const opt = document.createElement('option'); opt.value = c; opt.textContent = c; filterCategory.appendChild(opt);
+        const opt2 = document.createElement('option'); opt2.value = c; opt2.textContent = c; expCat.appendChild(opt2);
+      });
+      // render UI
+      renderAll();
+      updateAdminUI();
+
+      // wire events
+      search.addEventListener('input', renderTable);
+      filterCategory.addEventListener('change', renderTable);
+      dateFrom.addEventListener('change', renderTable);
+      dateTo.addEventListener('change', renderTable);
+      btnReset.addEventListener('click', resetFilters);
+      btnExport.addEventListener('click', exportJSON);
+      inputImport.addEventListener('change', importJSON);
+      formExpense.addEventListener('submit', onSubmitExpense);
+      document.addEventListener('click', onTableActions);
+
+      btnLogin.addEventListener('click', () => new bootstrap.Modal('#modalLogin').show());
+      btnLogout.addEventListener('click', () => { adminMode = false; sessionStorage.removeItem('isAdmin'); updateAdminUI(); });
+      formLogin.addEventListener('submit', onAdminLogin);
+    }
+
+    // ===== RENDER =====
+    function renderAll() {
+      // totals
+      const expenseSum = state.expenses.reduce((s, e) => s + Number(e.amt || 0), 0);
+      totalIncome.textContent = formatINR(state.income);
+      totalExpense.textContent = formatINR(expenseSum);
+      balance.textContent = formatINR(state.income - expenseSum);
+
+      // table
+      renderTable();
+
+      // chart
+      renderChart();
+    }
+
+    function renderTable() {
+      const filtered = getFiltered();
+      tbody.innerHTML = '';
+      filtered.forEach((e, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(e.desc)}</td>
+          <td><span class="badge badge-cat">${escapeHtml(e.cat)}</span></td>
+          <td>₹ ${Number(e.amt).toLocaleString('en-IN')}</td>
+          <td>${e.date}</td>
+          <td>${escapeHtml(e.notes || '')}</td>
+          <td class="admin-only">
+            <button class="btn btn-sm btn-outline-primary me-1 act-edit" data-id="${e.id}"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-sm btn-outline-danger act-del" data-id="${e.id}"><i class="fa-solid fa-trash"></i></button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      rowCount.textContent = `${filtered.length} रिकॉर्ड`;
+      updateAdminUI();
+    }
+
+    function renderChart() {
+      // aggregate by category
+      const map = new Map();
+      for (const c of CATEGORIES) map.set(c, 0);
+      for (const e of state.expenses) map.set(e.cat, (map.get(e.cat) || 0) + Number(e.amt));
+      const labels = Array.from(map.keys());
+      const data = Array.from(map.values());
+
+      const ctx = document.getElementById('catChart');
+      if (catChart) { catChart.destroy(); }
+      catChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'खर्च (₹)', data }] },
+        options: { responsive: true, maintainAspectRatio: false, aspectRatio: 2.5,
+          plugins: { legend: { display: true } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    // ===== FILTERING =====
+    function getFiltered() {
+      const q = (search.value || '').toLowerCase();
+      const fc = filterCategory.value;
+      const df = dateFrom.value ? new Date(dateFrom.value) : null;
+      const dt = dateTo.value ? new Date(dateTo.value) : null;
+
+      return state.expenses.filter(e => {
+        const inQ = !q || [e.desc, e.notes, e.cat].join(' ').toLowerCase().includes(q);
+        const inCat = !fc || e.cat === fc;
+        const ed = new Date(e.date);
+        const inFrom = !df || ed >= df;
+        const inTo = !dt || ed <= dt;
+        return inQ && inCat && inFrom && inTo;
+      });
+    }
+
+    function resetFilters() {
+      search.value = '';
+      filterCategory.value = '';
+      dateFrom.value = '';
+      dateTo.value = '';
+      renderTable();
+    }
+
+    // ===== CRUD =====
+    function onSubmitExpense(ev) {
+      ev.preventDefault();
+      if (!adminMode) return alert('केवल Admin संपादन कर सकते हैं');
+      const rec = {
+        id: expId.value || cryptoRandomId(),
+        desc: (expDesc.value || '').trim(),
+        cat: expCat.value,
+        amt: Math.max(0, Number(expAmt.value || 0)),
+        date: expDate.value,
+        notes: (expNotes.value || '').trim()
+      };
+      if (!rec.desc || !rec.cat || !rec.date) return alert('कृपया सभी आवश्यक फ़ील्ड भरें');
+
+      const idx = state.expenses.findIndex(x => x.id === rec.id);
+      if (idx >= 0) state.expenses[idx] = rec; else state.expenses.push(rec);
+      saveState();
+      bootstrap.Modal.getInstance(document.getElementById('modalExpense')).hide();
+      formExpense.reset(); expId.value = '';
+      renderAll();
+    }
+
+    function onTableActions(e) {
+      const editBtn = e.target.closest('.act-edit');
+      const delBtn = e.target.closest('.act-del');
+      if (editBtn) {
+        if (!adminMode) return alert('केवल Admin संपादन कर सकते हैं');
+        const id = editBtn.dataset.id; const rec = state.expenses.find(x => x.id === id);
+        if (!rec) return;
+        expId.value = rec.id; expDesc.value = rec.desc; expCat.value = rec.cat; expAmt.value = rec.amt; expDate.value = rec.date; expNotes.value = rec.notes || '';
+        new bootstrap.Modal('#modalExpense').show();
+      }
+      if (delBtn) {
+        if (!adminMode) return alert('केवल Admin संपादन कर सकते हैं');
+        const id = delBtn.dataset.id;
+        if (confirm('क्या आप इस रिकॉर्ड को हटाना चाहते हैं?')) {
+          state.expenses = state.expenses.filter(x => x.id !== id);
+          saveState();
+          renderAll();
+        }
+      }
+    }
+
+    // ===== ADMIN =====
+    function onAdminLogin(ev) {
+      ev.preventDefault();
+      const input = document.getElementById('adminPass');
+      const passSaved = localStorage.getItem(ADMIN_PASS_KEY) || DEFAULT_ADMIN_PASS;
+      if (input.value === passSaved) {
+        adminMode = true; sessionStorage.setItem('isAdmin', 'true');
+        bootstrap.Modal.getInstance(document.getElementById('modalLogin')).hide();
+        input.value = '';
+        updateAdminUI();
+      } else {
+        alert('गलत पासवर्ड');
+      }
+    }
+
+    function updateAdminUI() {
+      document.querySelectorAll('.admin-only').forEach(el => {
+        el.style.display = adminMode ? '' : 'none';
+      });
+    }
+
+    // ===== PERSISTENCE =====
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch {}
+      // seed if empty
+      const seeded = JSON.parse(JSON.stringify(SEED));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+      // also store default admin password if not set (can be changed in DevTools)
+      if (!localStorage.getItem(ADMIN_PASS_KEY)) localStorage.setItem(ADMIN_PASS_KEY, DEFAULT_ADMIN_PASS);
+      return seeded;
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `committee-expenses-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function importJSON(ev) {
+      if (!adminMode) return alert('केवल Admin import कर सकते हैं');
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const obj = JSON.parse(text);
+        if (!('income' in obj) || !Array.isArray(obj.expenses)) throw new Error('Invalid format');
+        state = obj; saveState(); renderAll();
+        ev.target.value = '';
+      } catch (err) { alert('फ़ाइल मान्य नहीं है'); }
+    }
+
+    // ===== UTILS =====
+    function formatINR(num) { return '₹ ' + Number(num || 0).toLocaleString('en-IN'); }
+    function escapeHtml(s) { return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    function cryptoRandomId() { try { return crypto.randomUUID(); } catch { return 'id-' + Math.random().toString(36).slice(2); } }
+  </script>
+</body>
+</html>
